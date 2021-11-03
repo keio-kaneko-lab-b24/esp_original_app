@@ -2,7 +2,9 @@
 
 #include "main.h"
 #include "ble.h"
-
+#include "output_handler.h"
+#include "motion.h"
+#include "predictor.h"
 #include "emg.h"
 
 TaskHandle_t TaskIO;
@@ -34,9 +36,9 @@ void TaskIOcode(void *pvParameters)
     // https://lang-ship.com/blog/work/esp32-freertos-l03-multitask/#toc12
     vTaskDelay(1);
 
-    // 整列処理
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
+      // ブロックが必要な処理
       xSemaphoreGive(xMutex);
     }
   }
@@ -47,8 +49,8 @@ void TaskMaincode(void *pvParameters)
 {
   for (;;)
   {
-    // 4Hz
-    if ((micros() - last_process_micros) < 250 * 1000)
+    // 10Hz
+    if ((micros() - last_process_micros) < 100 * 1000)
     {
       continue;
     }
@@ -61,8 +63,22 @@ void TaskMaincode(void *pvParameters)
 
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
-      // do nothing
+      // ブロックが必要な処理
+      xSemaphoreGive(xMutex);
     }
+
+    // 閾値判定
+    motion motion = NONE;
+    motion = PredictThreshold(
+        extensor_value,
+        flexor_value,
+        rock_flexor_lower_limit,
+        rock_extensor_upper_limit,
+        paper_extensor_lower_limit,
+        paper_flexor_upper_limit);
+
+    // ロボットへ出力
+    HandleOutput(motion);
   }
 };
 

@@ -51,6 +51,8 @@ private:
     void onWrite(BLECharacteristic *pCharacteristic)
     {
         std::string value = pCharacteristic->getValue();
+        // sprintf(buf, "%s", value.c_str());
+        // Serial.println(buf);
 
         // TODO: HandRobotAppとDELSYSから送る情報にヘッダーを付与し，処理を判定する
         if (value.substr(0, 1) == "E")
@@ -62,7 +64,8 @@ private:
         else if (value.substr(0, 2) == "RE")
         {
             updateThresholdFromString(value);
-            sprintf(buf, "%f\n%f\n%f\n%f", rock_extensor_upper_limit, rock_flexor_lower_limit,
+            sprintf(buf, "threshold changed: %f, %f, %f, %f",
+                    rock_extensor_upper_limit, rock_flexor_lower_limit,
                     paper_extensor_lower_limit, paper_flexor_upper_limit);
             Serial.println(buf);
         }
