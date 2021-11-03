@@ -14,10 +14,10 @@ extern volatile float paper_flexor_upper_limit;
 // AI判定：閾値
 // TODO
 
-extern void getRMS(
+extern void updataRMSFromString(
     std::string value);
 
-extern void getThreshold(
+extern void updateThresholdFromString(
     std::string value);
 
 #endif // EMG_H_

@@ -55,13 +55,13 @@ private:
         // TODO: HandRobotAppとDELSYSから送る情報にヘッダーを付与し，処理を判定する
         if (value.substr(0, 1) == "E")
         {
-            getRMS(value);
+            updataRMSFromString(value);
             sprintf(buf, "e_sp: %f\nf_sp: %f", extensor_value, flexor_value);
             Serial.println(buf);
         }
         else if (value.substr(0, 2) == "RE")
         {
-            getThreshold(value);
+            updateThresholdFromString(value);
             sprintf(buf, "%f\n%f\n%f\n%f", rock_extensor_upper_limit, rock_flexor_lower_limit,
                     paper_extensor_lower_limit, paper_flexor_upper_limit);
             Serial.println(buf);
@@ -109,7 +109,7 @@ void SetUpBLE()
 
 void UpdateBLEConnection()
 {
-    // disconnecting
+    // 接続解除時の処理
     if (!deviceConnected && oldDeviceConnected)
     {
         delay(500);                  // give the bluetooth stack the chance to get things ready
@@ -117,10 +117,9 @@ void UpdateBLEConnection()
         Serial.println("start advertising");
         oldDeviceConnected = deviceConnected;
     }
-    // connecting
+    // 接続時の処理
     if (deviceConnected && !oldDeviceConnected)
     {
-        // do stuff here on connecting
         oldDeviceConnected = deviceConnected;
     }
 }

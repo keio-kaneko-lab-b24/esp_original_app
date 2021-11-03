@@ -15,13 +15,6 @@ char main_s[64];
 long last_sample_micros = 0;
 long last_process_micros = 0;
 
-volatile float extensor_value = 0;
-volatile float flexor_value = 0;
-volatile float rock_flexor_lower_limit = 0;
-volatile float rock_extensor_upper_limit = 0;
-volatile float paper_extensor_lower_limit = 0;
-volatile float paper_flexor_upper_limit = 0;
-
 // IOスレッド
 void TaskIOcode(void *pvParameters)
 {

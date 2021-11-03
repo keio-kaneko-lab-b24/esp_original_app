@@ -1,14 +1,24 @@
 #include <Arduino.h>
 
-#include "ble.h"
 #include "emg.h"
 
-void getRMS(
+volatile float extensor_value = 0;
+volatile float flexor_value = 0;
+
+volatile float rock_flexor_lower_limit = 0;
+volatile float rock_extensor_upper_limit = 0;
+volatile float paper_extensor_lower_limit = 0;
+volatile float paper_flexor_upper_limit = 0;
+
+// RMS値を更新する
+// @value （例）"0.012345, F: 0.056789, E5"
+void updataRMSFromString(
     std::string value)
 {
     size_t pos = 0;
     std::string delimiter = ",";
 
+    // TODO: もっとよい書き方
     // ExtensorのRMS値を取得
     while ((pos = value.find(delimiter)) != std::string::npos)
     {
@@ -30,12 +40,15 @@ void getRMS(
     }
 }
 
-void getThreshold(
+// 閾値判定の閾値を更新
+// @value （例）"RE:LT0.001,RF:GT0.002,PE:GT0.003,PF:LT0.001"
+void updateThresholdFromString(
     std::string value)
 {
     size_t pos = 0;
     std::string delimiter = ",";
 
+    // TODO: もっとよい書き方
     // RockのExtensor上限を取得
     while ((pos = value.find(delimiter)) != std::string::npos)
     {
