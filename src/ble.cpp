@@ -18,11 +18,6 @@ bool oldDeviceConnected = false;
 #define SERVICE_UUID "63b803e2-9201-47ee-968b-1405602a1b8e"
 #define CHARACTERISTIC_UUID "46bfca8b-b8d8-40b1-87e7-c22116324c01"
 
-#define MD1_OUT1 32 //GPIO #32
-#define MD1_OUT2 33 //GPIO #33
-#define MD2_OUT1 25 //GPIO #25
-#define MD2_OUT2 26 //GPIO #26
-
 char buf[100];
 
 class MyServerCallbacks : public BLEServerCallbacks
@@ -43,56 +38,39 @@ private:
 class MyCallbacks : public BLECharacteristicCallbacks
 {
 private:
+    // HandRobotAppへ"RMS筋電情報"を送信
+    void onRead(BLECharacteristic *pCharacteristic)
+    {
+        sprintf(buf, "E%f,F%f", extensor_value, flexor_value);
+        pCharacteristic->setValue(buf);
+        // Serial.println(buf);
+    }
+
+    // HandRobotAppから"閾値"を取得
+    // DELSYSから"RMS筋電情報"を取得
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-        std::string value_raw = pCharacteristic->getValue();
+        std::string value = pCharacteristic->getValue();
 
-        std::string value = "E: 123.012345, F: 0.056789, E5";
-        std::string delimiter = ",";
-
-        size_t pos = 0;
-
-        // ExtensorのRMS値を取得
-        float e_value = 0.0;
-        while ((pos = value.find(delimiter)) != std::string::npos)
+        // TODO: HandRobotAppとDELSYSから送る情報にヘッダーを付与し，処理を判定する
+        if (value.substr(0, 1) == "E")
         {
-            std::string e_token = value.substr(3, 100); // 多めに100文字目まで取得
-            const char *e_str = e_token.c_str();
-            e_value = atof(e_str);
-            value.erase(0, pos + delimiter.length());
-            break;
+            getRMS(value);
+            sprintf(buf, "e_sp: %f\nf_sp: %f", extensor_value, flexor_value);
+            Serial.println(buf);
         }
-
-        // FlexorのRMS値を取得
-        float f_value = 0.0;
-        while ((pos = value.find(delimiter)) != std::string::npos)
+        else if (value.substr(0, 2) == "RE")
         {
-            std::string f_token = value.substr(4, 100); // 多めに100文字目まで取得
-            const char *f_str = f_token.c_str();
-            f_value = atof(f_str);
-            value.erase(0, pos + delimiter.length());
-            break;
+            getThreshold(value);
+            sprintf(buf, "%f\n%f\n%f\n%f", rock_extensor_upper_limit, rock_flexor_lower_limit,
+                    paper_extensor_lower_limit, paper_flexor_upper_limit);
+            Serial.println(buf);
         }
-
-        extensor_value = e_value;
-        flexor_value = f_value;
-
-        // モニター出力
-        sprintf(buf, "e_sp: %f\n", extensor_value);
-        Serial.println(buf);
-        sprintf(buf, "f_sp: %f\n", flexor_value);
-        Serial.println(buf);
     }
 };
 
 void SetUpBLE()
 {
-    // Setup Pins
-    pinMode(MD1_OUT1, OUTPUT);
-    pinMode(MD1_OUT2, OUTPUT);
-    pinMode(MD2_OUT1, OUTPUT);
-    pinMode(MD2_OUT2, OUTPUT);
-
     // Create the BLE Device
     BLEDevice::init("ESP32 GET NOTI FROM DEVICE");
 
