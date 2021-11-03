@@ -6,6 +6,7 @@
 #include <BLE2902.h>
 
 #include "ble.h"
+#include "emg.h"
 
 BLEServer *pServer = NULL;
 BLECharacteristic *pCharacteristic = NULL;
@@ -44,65 +45,43 @@ class MyCallbacks : public BLECharacteristicCallbacks
 private:
     void onWrite(BLECharacteristic *pCharacteristic)
     {
-        std::string value = pCharacteristic->getValue();
+        std::string value_raw = pCharacteristic->getValue();
 
-        if (value.length() > 0)
+        std::string value = "E: 123.012345, F: 0.056789, E5";
+        std::string delimiter = ",";
+
+        size_t pos = 0;
+
+        // ExtensorのRMS値を取得
+        float e_value = 0.0;
+        while ((pos = value.find(delimiter)) != std::string::npos)
         {
-
-            Serial.println("**********");
-
-            if (value == "State: 0")
-            {
-                sprintf(buf, "GPIO[%d,%d] out1 = 0, out2 = 0;", MD1_OUT1, MD1_OUT2);
-                Serial.println(buf);
-                sprintf(buf, "P %3.2f: G %3.2f", 0.0, 0.0);
-                Serial.println(buf);
-                digitalWrite(MD1_OUT1, LOW);
-                digitalWrite(MD1_OUT2, LOW);
-                digitalWrite(MD2_OUT1, LOW);
-                digitalWrite(MD2_OUT2, LOW);
-            }
-            else if (value == "State: 1")
-            {
-                sprintf(buf, "GPIO[%d,%d] out1 = 1, out2 = 0;", MD1_OUT1, MD1_OUT2);
-                Serial.println(buf);
-                sprintf(buf, "P %3.2f: G %3.2f", 0.0, 1.0);
-                Serial.println(buf);
-                digitalWrite(MD1_OUT1, HIGH);
-                digitalWrite(MD1_OUT2, LOW);
-                digitalWrite(MD2_OUT1, HIGH);
-                digitalWrite(MD2_OUT2, LOW);
-            }
-            else if (value == "State: 2")
-            {
-                sprintf(buf, "GPIO[%d,%d] out1 = 0, out2 = 1;", MD1_OUT1, MD1_OUT2);
-                Serial.println(buf);
-                sprintf(buf, "P %3.2f: G %3.2f", 1.0, 0.0);
-                Serial.println(buf);
-                digitalWrite(MD1_OUT1, LOW);
-                digitalWrite(MD1_OUT2, HIGH);
-                digitalWrite(MD2_OUT1, LOW);
-                digitalWrite(MD2_OUT2, HIGH);
-            }
-            else if (value == "State: 3")
-            {
-                sprintf(buf, "GPIO[%d,%d] out1 = 1, out2 = 1;", MD1_OUT1, MD1_OUT2);
-                Serial.println(buf);
-                sprintf(buf, "P %3.2f: G %3.2f", 1.0, 1.0);
-                Serial.println(buf);
-                digitalWrite(MD1_OUT1, HIGH);
-                digitalWrite(MD1_OUT2, HIGH);
-                digitalWrite(MD2_OUT1, HIGH);
-                digitalWrite(MD2_OUT2, HIGH);
-            }
-            else
-            {
-                for (int i = 0; i < value.length(); i++)
-                {
-                    Serial.print(value[i]);
-                }
-            }
+            std::string e_token = value.substr(3, 100); // 多めに100文字目まで取得
+            const char *e_str = e_token.c_str();
+            e_value = atof(e_str);
+            value.erase(0, pos + delimiter.length());
+            break;
         }
+
+        // FlexorのRMS値を取得
+        float f_value = 0.0;
+        while ((pos = value.find(delimiter)) != std::string::npos)
+        {
+            std::string f_token = value.substr(4, 100); // 多めに100文字目まで取得
+            const char *f_str = f_token.c_str();
+            f_value = atof(f_str);
+            value.erase(0, pos + delimiter.length());
+            break;
+        }
+
+        extensor_value = e_value;
+        flexor_value = f_value;
+
+        // モニター出力
+        sprintf(buf, "e_sp: %f\n", extensor_value);
+        Serial.println(buf);
+        sprintf(buf, "f_sp: %f\n", flexor_value);
+        Serial.println(buf);
     }
 };
 

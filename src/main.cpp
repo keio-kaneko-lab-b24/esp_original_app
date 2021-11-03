@@ -2,6 +2,10 @@
 
 #include "main.h"
 #include "ble.h"
+#include "emg.h"
+
+volatile float extensor_value = 0;
+volatile float flexor_value = 0;
 
 void setup()
 {
