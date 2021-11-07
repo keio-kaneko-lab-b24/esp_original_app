@@ -1,9 +1,9 @@
 {
     "monitor" : {
         "view_monitor": {
-            "raw_data_view_yaxis_max": 1500,
+            "raw_data_view_yaxis_max": 0.2,
             "raw_data_view_yaxis_min": 0,
-            "sp_data_view_yaxis_max": 1500,
+            "sp_data_view_yaxis_max": 0.2,
             "sp_data_view_yaxis_min": 0
         }
     }
