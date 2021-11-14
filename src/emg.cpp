@@ -54,7 +54,14 @@ void updateThresholdFromString(
     {
         std::string e_token = value.substr(5, 100); // 多めに100文字目まで取得
         const char *e_str = e_token.c_str();
-        rock_extensor_upper_limit = atof(e_str);
+        if (atof(e_str) < 0)
+        {
+            rock_extensor_upper_limit = 99999;
+        }
+        else
+        {
+            rock_extensor_upper_limit = atof(e_str);
+        }
         value.erase(0, pos + delimiter.length());
         break;
     }
@@ -82,6 +89,13 @@ void updateThresholdFromString(
     // PaperのFlexor上限を取得
     std::string f_token = value.substr(5, 100); // 多めに100文字目まで取得
     const char *f_str = f_token.c_str();
-    paper_flexor_upper_limit = atof(f_str);
+    if (atof(f_str) < 0)
+    {
+        paper_flexor_upper_limit = 99999;
+    }
+    else
+    {
+        paper_flexor_upper_limit = atof(f_str);
+    }
     value.erase(0, pos + delimiter.length());
 }

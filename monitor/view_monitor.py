@@ -125,16 +125,16 @@ def load():
             gr = re.search("FlexorThreshold: ([0-9\\.]+)", line)
             if gr:
                 flexor_threshold = gr.group(1)
-            gr = re.search("RockFlexorLowerLimit: ([0-9\\.]+)", line)
-            if gr:
-                rock_flexor_lower_limit = gr.group(1)
-            gr = re.search("RockExtensorUpperLimit: ([0-9\\.]+)", line)
+            gr = re.search("rock_extensor_upper_limit: ([0-9\\.]+)", line)
             if gr:
                 rock_extensor_upper_limit = gr.group(1)
-            gr = re.search("PaperExtensorLowerLimit: ([0-9\\.]+)", line)
+            gr = re.search("rock_flexor_lower_limit: ([0-9\\.]+)", line)
+            if gr:
+                rock_flexor_lower_limit = gr.group(1)
+            gr = re.search("paper_extensor_lower_limit: ([0-9\\.]+)", line)
             if gr:
                 paper_extensor_lower_limit = gr.group(1)
-            gr = re.search("PaperFlexorUpperLimit: ([0-9\\.]+)", line)
+            gr = re.search("paper_flexor_upper_limit: ([0-9\\.]+)", line)
             if gr:
                 paper_flexor_upper_limit = gr.group(1)
 
