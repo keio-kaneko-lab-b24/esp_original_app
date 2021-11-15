@@ -89,6 +89,8 @@ void setup()
 
   SetUpBLE();
 
+  OutputSetup();
+
   xMutex = xSemaphoreCreateMutex();
   xTaskCreatePinnedToCore(TaskIOcode, "TaskIO", 4096, NULL, 2, &TaskIO, 0); //Task1実行
   delay(500);
