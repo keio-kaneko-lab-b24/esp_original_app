@@ -64,14 +64,6 @@ private:
         else if (value.substr(0, 2) == "RE")
         {
             updateThresholdFromString(value);
-            sprintf(buf, "rock_extensor_upper_limit: %f", rock_extensor_upper_limit);
-            Serial.println(buf);
-            sprintf(buf, "rock_flexor_lower_limit: %f", rock_flexor_lower_limit);
-            Serial.println(buf);
-            sprintf(buf, "paper_extensor_lower_limit: %f", paper_extensor_lower_limit);
-            Serial.println(buf);
-            sprintf(buf, "paper_flexor_upper_limit: %f", paper_flexor_upper_limit);
-            Serial.println(buf);
         }
     }
 };

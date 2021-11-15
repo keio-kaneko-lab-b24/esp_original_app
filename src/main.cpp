@@ -61,6 +61,16 @@ void TaskMaincode(void *pvParameters)
     // https://lang-ship.com/blog/work/esp32-freertos-l03-multitask/#toc12
     vTaskDelay(1);
 
+    // モニタリングするために出力
+    sprintf(main_s, "rock_extensor_upper_limit: %f", rock_extensor_upper_limit);
+    Serial.println(main_s);
+    sprintf(main_s, "rock_flexor_lower_limit: %f", rock_flexor_lower_limit);
+    Serial.println(main_s);
+    sprintf(main_s, "paper_extensor_lower_limit: %f", paper_extensor_lower_limit);
+    Serial.println(main_s);
+    sprintf(main_s, "paper_flexor_upper_limit: %f", paper_flexor_upper_limit);
+    Serial.println(main_s);
+
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
       // ブロックが必要な処理
