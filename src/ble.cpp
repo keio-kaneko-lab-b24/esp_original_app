@@ -71,7 +71,7 @@ private:
 void SetUpBLE()
 {
     // Create the BLE Device
-    BLEDevice::init("ESP32 GET NOTI FROM DEVICE");
+    BLEDevice::init("SAMPLE ESP32 DEVICE");
 
     // Create the BLE Server
     pServer = BLEDevice::createServer();
