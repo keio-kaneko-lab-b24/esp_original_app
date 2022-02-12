@@ -6,6 +6,9 @@
 #include "motion.h"
 #include "predictor.h"
 #include "emg.h"
+#include "input_handler.h"
+#include "signal_processor.h"
+#include "constants.h"
 
 TaskHandle_t TaskIO;
 TaskHandle_t TaskMain;
@@ -16,6 +19,14 @@ SemaphoreHandle_t xMutex = NULL;
 char main_s[64];
 long last_sample_micros = 0;
 long last_process_micros = 0;
+
+int begin_index = 0;
+// 筋電センサーからの入力（1000Hz）
+int r_extensor_data[r_length] = {0};
+int r_flexor_data[r_length] = {0};
+// 整列後の筋電センサーからの入力（1000Hz）
+int ar_extensor_data[r_length] = {0};
+int ar_flexor_data[r_length] = {0};
 
 // IOスレッド
 void TaskIOcode(void *pvParameters)
@@ -36,9 +47,20 @@ void TaskIOcode(void *pvParameters)
     // https://lang-ship.com/blog/work/esp32-freertos-l03-multitask/#toc12
     vTaskDelay(1);
 
+    // ブロックが必要な処理
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
-      // ブロックが必要な処理
+      begin_index += 1;
+      if (begin_index >= r_length - 1)
+      {
+        begin_index = 0;
+      }
+
+      HandleInput(r_extensor_data,
+                  r_flexor_data,
+                  begin_index,
+                  r_length);
+
       xSemaphoreGive(xMutex);
     }
   }
@@ -71,11 +93,25 @@ void TaskMaincode(void *pvParameters)
     sprintf(main_s, "paper_flexor_upper_limit: %f", paper_flexor_upper_limit);
     Serial.println(main_s);
 
+    // ブロックが必要な処理
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
-      // ブロックが必要な処理
+      // 整列処理
+      ArrangeArray(
+          r_extensor_data,
+          r_flexor_data,
+          ar_extensor_data,
+          ar_flexor_data,
+          begin_index,
+          r_length);
+
       xSemaphoreGive(xMutex);
     }
+
+    // 信号処理
+    SignalProcess(ar_extensor_data,
+                  ar_flexor_data,
+                  r_length);
 
     // 閾値判定
     motion motion = NONE;

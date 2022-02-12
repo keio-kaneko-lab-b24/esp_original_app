@@ -57,9 +57,10 @@ private:
         // TODO: HandRobotAppとDELSYSから送る情報にヘッダーを付与し，処理を判定する
         if (value.substr(0, 1) == "E")
         {
-            updataRMSFromString(value);
-            sprintf(buf, "e_sp: %f\nf_sp: %f", extensor_value, flexor_value);
-            Serial.println(buf);
+            // DELSYS版のみ使用
+            // updataRMSFromString(value);
+            // sprintf(buf, "e_sp: %f\nf_sp: %f", extensor_value, flexor_value);
+            // Serial.println(buf);
         }
         else if (value.substr(0, 2) == "RE")
         {
