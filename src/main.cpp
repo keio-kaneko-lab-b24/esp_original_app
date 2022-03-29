@@ -71,8 +71,8 @@ void TaskMaincode(void *pvParameters)
 {
   for (;;)
   {
-    // 10Hz
-    if ((micros() - last_process_micros) < 100 * 1000)
+    // 50Hz
+    if ((micros() - last_process_micros) < 20 * 1000)
     {
       continue;
     }
@@ -138,9 +138,9 @@ void setup()
   OutputSetup();
 
   xMutex = xSemaphoreCreateMutex();
-  xTaskCreatePinnedToCore(TaskIOcode, "TaskIO", 4096, NULL, 2, &TaskIO, 0); //Task1実行
+  xTaskCreatePinnedToCore(TaskIOcode, "TaskIO", 4096, NULL, 2, &TaskIO, 0); // Task1実行
   delay(500);
-  xTaskCreatePinnedToCore(TaskMaincode, "TaskMain", 4096, NULL, 2, &TaskMain, 1); //Task2実行
+  xTaskCreatePinnedToCore(TaskMaincode, "TaskMain", 4096, NULL, 2, &TaskMain, 1); // Task2実行
   delay(500);
 
   Serial.println("[setup] finished.");
