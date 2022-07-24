@@ -170,8 +170,8 @@ def animate(i):
         # ax01.legend(loc='upper right')
 
         # 信号処理後データ
-        extensor_processed = extensor_processed[-10:]
-        flexor_processed = flexor_processed[-10:]
+        extensor_processed = extensor_processed[-100:]
+        flexor_processed = flexor_processed[-100:]
         axis_x = np.arange(len(extensor_processed))
         ax1.plot(axis_x, flexor_processed, label='flexor', color=u'#ff7f0e')
         ax1.plot(axis_x, extensor_processed,

@@ -51,7 +51,7 @@ bool SignalProcess(int ar_extensor_data[],
     vPortFree(m_extensor_data);
     vPortFree(m_flexor_data);
 
-    sprintf(sp_s, "extensor_value: %f", extensor_value);
+    sprintf(sp_s, "e_sp: %f\nf_sp: %f", extensor_value, flexor_value);
     Serial.println(sp_s);
 
     return true;
