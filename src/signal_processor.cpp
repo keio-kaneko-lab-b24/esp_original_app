@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #include <stdlib.h>
 
-#include "signal_processor.h"
+#include "constants.h"
 #include "emg.h"
+#include "signal_processor.h"
 
 char sp_s[64];
 
@@ -12,18 +13,16 @@ float *b_flexor_data = NULL;
 float *m_extensor_data = NULL;
 float *m_flexor_data = NULL;
 
-constexpr int kWindowWidth = 1000;
-
 bool SignalProcess(int ar_extensor_data[],
                    int ar_flexor_data[],
-                   const int r_length)
+                   const int RAW_LENGTH)
 {
     // 1.正規化+ABS
-    b_extensor_data = (float *)pvPortMalloc(sizeof(float) * r_length);
-    b_flexor_data = (float *)pvPortMalloc(sizeof(float) * r_length);
+    b_extensor_data = (float *)pvPortMalloc(sizeof(float) * RAW_LENGTH);
+    b_flexor_data = (float *)pvPortMalloc(sizeof(float) * RAW_LENGTH);
 
-    float extensor_mean = Mean(ar_extensor_data, r_length);
-    float flexor_mean = Mean(ar_flexor_data, r_length);
+    float extensor_mean = Mean(ar_extensor_data, RAW_LENGTH);
+    float flexor_mean = Mean(ar_flexor_data, RAW_LENGTH);
     Normalization(
         ar_extensor_data,
         ar_flexor_data,
@@ -31,23 +30,23 @@ bool SignalProcess(int ar_extensor_data[],
         b_flexor_data,
         extensor_mean,
         flexor_mean,
-        r_length);
+        RAW_LENGTH);
 
     // 2.移動平均
-    m_extensor_data = (float *)pvPortMalloc(sizeof(float) * r_length);
-    m_flexor_data = (float *)pvPortMalloc(sizeof(float) * r_length);
+    m_extensor_data = (float *)pvPortMalloc(sizeof(float) * RAW_LENGTH);
+    m_flexor_data = (float *)pvPortMalloc(sizeof(float) * RAW_LENGTH);
     RollingAverage(
         b_extensor_data,
         b_flexor_data,
         m_extensor_data,
         m_flexor_data,
-        r_length);
+        RAW_LENGTH);
     vPortFree(b_extensor_data);
     vPortFree(b_flexor_data);
 
     // 結果
-    extensor_value = Max(m_extensor_data, r_length);
-    flexor_value = Max(m_flexor_data, r_length);
+    extensor_value = Max(m_extensor_data, RAW_LENGTH);
+    flexor_value = Max(m_flexor_data, RAW_LENGTH);
     vPortFree(m_extensor_data);
     vPortFree(m_flexor_data);
 
@@ -66,14 +65,14 @@ void ArrangeArray(
     int ar_extensor_data[],
     int ar_flexor_data[],
     int begin_index,
-    const int r_length)
+    const int RAW_LENGTH)
 {
-    for (int i = 0; i < r_length; ++i)
+    for (int i = 0; i < RAW_LENGTH; ++i)
     {
-        int ring_array_index = begin_index + i - r_length;
+        int ring_array_index = begin_index + i - RAW_LENGTH;
         if (ring_array_index < 0)
         {
-            ring_array_index += r_length;
+            ring_array_index += RAW_LENGTH;
         }
         ar_extensor_data[i] = r_extensor_data[ring_array_index];
         ar_flexor_data[i] = r_flexor_data[ring_array_index];
@@ -90,9 +89,9 @@ void Normalization(
     float b_flexor_data[],
     float extensor_mean,
     float flexor_mean,
-    const int r_length)
+    const int RAW_LENGTH)
 {
-    for (int i = 0; i < r_length; ++i)
+    for (int i = 0; i < RAW_LENGTH; ++i)
     {
 
         float f_extensor = (float)ar_extensor_data[i];
@@ -114,20 +113,17 @@ void RollingAverage(
     float b_flexor_data[],
     float m_extensor_data[],
     float m_flexor_data[],
-    const int r_length)
+    const int RAW_LENGTH)
 {
     float extensor_sum = 0;
     float flexor_sum = 0;
     int m_i = 0;
 
-    // 幅100(=1ms*100=100ms)のフィルタ
-    int filterWidth = kWindowWidth / 100;
-
-    for (int i = 0; i < filterWidth; i++)
+    for (int i = 0; i < WINDOW_SIZE; i++)
     {
         extensor_sum += b_extensor_data[i];
         flexor_sum += b_flexor_data[i];
-        if (i >= (filterWidth / 2) - 1)
+        if (i >= (WINDOW_SIZE / 2) - 1)
         {
             m_extensor_data[m_i] = extensor_sum / (i + 1);
             m_flexor_data[m_i] = flexor_sum / (i + 1);
@@ -135,25 +131,25 @@ void RollingAverage(
         }
     }
 
-    for (int i = filterWidth; i < r_length; i++)
+    for (int i = WINDOW_SIZE; i < RAW_LENGTH; i++)
     {
-        extensor_sum -= b_extensor_data[i - filterWidth];
+        extensor_sum -= b_extensor_data[i - WINDOW_SIZE];
         extensor_sum += b_extensor_data[i];
-        m_extensor_data[m_i] = extensor_sum / filterWidth;
-        flexor_sum -= b_flexor_data[i - filterWidth];
+        m_extensor_data[m_i] = extensor_sum / WINDOW_SIZE;
+        flexor_sum -= b_flexor_data[i - WINDOW_SIZE];
         flexor_sum += b_flexor_data[i];
-        m_flexor_data[m_i] = flexor_sum / filterWidth;
+        m_flexor_data[m_i] = flexor_sum / WINDOW_SIZE;
         m_i += 1;
     }
 
-    for (int i = r_length; i < r_length + (filterWidth / 2); i++)
+    for (int i = RAW_LENGTH; i < RAW_LENGTH + (WINDOW_SIZE / 2); i++)
     {
-        extensor_sum -= b_extensor_data[i - filterWidth];
-        m_extensor_data[m_i] = extensor_sum / (filterWidth - (i - r_length) + 1);
-        flexor_sum -= b_flexor_data[i - filterWidth];
-        m_flexor_data[m_i] = flexor_sum / (filterWidth - (i - r_length) + 1);
+        extensor_sum -= b_extensor_data[i - WINDOW_SIZE];
+        m_extensor_data[m_i] = extensor_sum / (WINDOW_SIZE - (i - RAW_LENGTH) + 1);
+        flexor_sum -= b_flexor_data[i - WINDOW_SIZE];
+        m_flexor_data[m_i] = flexor_sum / (WINDOW_SIZE - (i - RAW_LENGTH) + 1);
         m_i += 1;
-        if (m_i >= r_length)
+        if (m_i >= RAW_LENGTH)
         {
             break;
         }
