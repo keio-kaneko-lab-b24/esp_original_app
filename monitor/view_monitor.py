@@ -88,7 +88,7 @@ def load():
     paper_flexor_upper_limit = 0
 
     with open(monitor_file, "r") as file:
-        for line in file.readlines()[-3000:]:
+        for line in file.readlines()[-5000:]:
 
             # 生データ
             mc = re.match("^([ef]): ([0-9]+)\n", line)
@@ -158,21 +158,29 @@ def animate(i):
         extensor_row = extensor_row[-500:]
         flexor_row = flexor_row[-500:]
         axis_x = np.arange(len(extensor_row))
-        ax00.plot(axis_x, extensor_row, label='extensor', color=u'#1f77b4')
+        axis_x = axis_x / 100 # 注意： 「100」は筋電のHzなどによって変動する
+        ax00.plot(axis_x, extensor_row, label='extensor',
+                   color=u'#1f77b4', linewidth=1)
         # ax00.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_max, alpha=0)
         # ax00.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_min, alpha=0)
         ax00.legend(loc='upper right')
+        ax00.set_ylabel('(mV)', fontsize=12)
 
-        ax01.plot(axis_x, flexor_row, label='flexor', color=u'#ff7f0e')
+        ax01.plot(axis_x, flexor_row, label='flexor', 
+                  color=u'#ff7f0e', linewidth=1)
         # ax01.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_max, alpha=0)
         # ax01.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_min, alpha=0)
         ax01.legend(loc='upper right')
+        ax01.set_xlabel('time(s)', fontsize=12)
+        ax01.set_ylabel('(mV)', fontsize=12)
 
         # 信号処理後データ
-        extensor_processed = extensor_processed[-100:]
-        flexor_processed = flexor_processed[-100:]
+        extensor_processed = extensor_processed[-50:]
+        flexor_processed = flexor_processed[-50:]
         axis_x = np.arange(len(extensor_processed))
-        ax1.plot(axis_x, flexor_processed, label='flexor', color=u'#ff7f0e')
+        axis_x = axis_x / 10 # 注意： 「10」はPREDICT_HZなどによって変動する
+        ax1.plot(axis_x, flexor_processed,
+                  label='flexor', color=u'#ff7f0e')
         ax1.plot(axis_x, extensor_processed,
                  label='extensor', color=u'#1f77b4')
         # プロットの上限と下限を設定
@@ -183,20 +191,25 @@ def animate(i):
         ax1.plot(axis_x, np.ones(len(extensor_processed))
                  * view_yaxis_min, alpha=0)
         ax1.legend(loc='upper right')
+        ax1.set_title("PROCESSED EMG", size=14)
+        ax1.set_xlabel('time(s)', fontsize=12)
+        ax1.set_ylabel('(mV)', fontsize=12)
 
         # 判定結果
-        pa = pa[-10:]
-        gu = gu[-10:]
+        pa = pa[-50:]
+        gu = gu[-50:]
         axis_x = np.arange(len(pa))
+        axis_x = axis_x / 10 # 注意： 「10」はPREDICT_HZなどによって変動する
         ax2.plot(axis_x, gu, label='rock', color=u'#ff7f0e')
         ax2.plot(axis_x, pa, label='paper', color=u'#1f77b4')
         ax2.plot(axis_x, np.ones(len(pa)), alpha=0)
         ax2.plot(axis_x, np.zeros(len(pa)), alpha=0)
         ax2.legend(loc='upper right')
+        ax2.set_xlabel('time(s)', fontsize=12)
 
-        title_text = "THRESHOLD\n"
-        threshold_text1 = f"Rock :  Flexor  > {rock_flexor_lower_limit}, Extensor < {rock_extensor_upper_limit}\n"
-        threshold_text2 = f"Paper: Extensor > {paper_extensor_lower_limit},  Flexor  < {paper_flexor_upper_limit}"
+        title_text = "PREDICTION\n"
+        threshold_text1 = f"Rock : Flx > {rock_flexor_lower_limit}, Ext < {rock_extensor_upper_limit}\n"
+        threshold_text2 = f"Paper: Ext > {paper_extensor_lower_limit}, Flx < {paper_flexor_upper_limit}"
         threshold_text = threshold_text1 + threshold_text2
         ax2.set_title(title_text + threshold_text, size=14)
 
