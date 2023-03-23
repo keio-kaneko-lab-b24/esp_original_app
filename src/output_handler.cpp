@@ -2,10 +2,10 @@
 
 #include "output_handler.h"
 
-#define MD1_OUT1 32 //GPIO #32
-#define MD1_OUT2 33 //GPIO #33
-#define MD2_OUT1 25 //GPIO #25
-#define MD2_OUT2 26 //GPIO #26
+#define MD1_OUT1 32 // GPIO #32
+#define MD1_OUT2 33 // GPIO #33
+#define MD2_OUT1 25 // GPIO #25
+#define MD2_OUT2 26 // GPIO #26
 
 char output_s[100];
 long last_paper_micros = 0;
@@ -57,7 +57,7 @@ void HandleOutput(motion predict_motion)
 
 void OutputType00()
 {
-    Serial.println("out1 = 0, out2 = 0;");
+    Serial.println("out1 = 0, out2 = 0;\n");
     digitalWrite(MD1_OUT1, LOW);
     digitalWrite(MD1_OUT2, LOW);
     digitalWrite(MD2_OUT1, LOW);
@@ -66,7 +66,7 @@ void OutputType00()
 
 void OutputType10()
 {
-    Serial.println("out1 = 1, out2 = 0;");
+    Serial.println("out1 = 1, out2 = 0;\n");
     digitalWrite(MD1_OUT1, HIGH);
     digitalWrite(MD1_OUT2, LOW);
     digitalWrite(MD2_OUT1, HIGH);
@@ -75,7 +75,7 @@ void OutputType10()
 
 void OutputType01()
 {
-    Serial.println("out1 = 0, out2 = 1;");
+    Serial.println("out1 = 0, out2 = 1;\n");
     digitalWrite(MD1_OUT1, LOW);
     digitalWrite(MD1_OUT2, HIGH);
     digitalWrite(MD2_OUT1, LOW);
@@ -84,7 +84,7 @@ void OutputType01()
 
 void OutputType11()
 {
-    Serial.println("out1 = 1, out2 = 1;");
+    Serial.println("out1 = 1, out2 = 1;\n");
     digitalWrite(MD1_OUT1, HIGH);
     digitalWrite(MD1_OUT2, HIGH);
     digitalWrite(MD2_OUT1, HIGH);

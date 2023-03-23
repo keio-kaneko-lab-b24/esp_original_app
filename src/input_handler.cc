@@ -20,11 +20,15 @@ bool HandleInput(volatile int r_extensor_data[],
     r_flexor_data[begin_index] = b;
 
     // （デバッグ用）筋電をすべて出力する
-    // unsigned long currentMillis = xTaskGetTickCount();
-    // sprintf(handle_input_s, "time: %lu\n", currentMillis);
-    // Serial.println(handle_input_s);
-    // sprintf(handle_input_s, "index: %d\ne: %d\nf: %d\n", begin_index, r_extensor_data[begin_index], r_flexor_data[begin_index]);
-    // Serial.println(handle_input_s);
+    if (begin_index % 10 == 0)
+    {
+        unsigned long currentMillis = xTaskGetTickCount();
+        sprintf(
+            handle_input_s,
+            "t: %lu\ni: %d\ne: %d\nf: %d\n",
+            currentMillis, begin_index, r_extensor_data[begin_index], r_flexor_data[begin_index]);
+        Serial.println(handle_input_s);
+    }
 
     return true;
 }

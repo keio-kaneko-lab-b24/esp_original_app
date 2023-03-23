@@ -33,8 +33,8 @@ void TaskIOcode(void *pvParameters)
 {
   for (;;)
   {
-    // 1000Hz
-    if ((micros() - last_sample_micros) < 1 * 1000)
+    // 毎秒 {TARGET_HZ} 回実行される
+    if ((micros() - last_sample_micros) < (1000 * 1000 / TARGET_HZ))
     {
       continue;
     }
@@ -71,8 +71,8 @@ void TaskMaincode(void *pvParameters)
 {
   for (;;)
   {
-    // 50Hz
-    if ((micros() - last_process_micros) < 20 * 1000)
+    // 毎秒 {PREDICT_HZ} 回実行される
+    if ((micros() - last_process_micros) < (1000 * 1000 / PREDICT_HZ))
     {
       continue;
     }

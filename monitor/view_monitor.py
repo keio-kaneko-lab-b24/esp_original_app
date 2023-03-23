@@ -88,16 +88,16 @@ def load():
     paper_flexor_upper_limit = 0
 
     with open(monitor_file, "r") as file:
-        for line in file.readlines():
+        for line in file.readlines()[-3000:]:
 
-            # # 生データ
-            # mc = re.match("^([ef]): ([+-]?\\d+(?:\\.\\d+)?)\n", line)
-            # if mc:
-            #     if mc[1] == "e":
-            #         extensor_row.append(int(float(mc[2])))
-            #     else:
-            #         flexor_row.append(int(float(mc[2])))
-            #     continue
+            # 生データ
+            mc = re.match("^([ef]): ([0-9]+)\n", line)
+            if mc:
+                if mc[1] == "e":
+                    extensor_row.append(int(mc[2]))
+                else:
+                    flexor_row.append(int(mc[2]))
+                continue
 
             # 信号処理後データ
             mc = re.match("^(e_sp): ([+-]?\\d+(?:\\.\\d+)?)\n", line)
@@ -111,7 +111,6 @@ def load():
                 continue
 
             # 出力
-            # gr = re.search("P ([0-9\\.]+): G ([0-9\\.]+)", line)
             gr = re.search("out1 = ([0-9\\.]+), out2 = ([0-9\\.]+)", line)
             if gr:
                 gu.append(float(gr.group(1)))
@@ -154,20 +153,20 @@ def animate(i):
 
     try:
         # 生データ
-        # view_yaxis_max = param["monitor"]["view_monitor"]["raw_data_view_yaxis_max"]
-        # view_yaxis_min = param["monitor"]["view_monitor"]["raw_data_view_yaxis_min"]
-        # extensor_row = extensor_row[-1000:]
-        # flexor_row = flexor_row[-1000:]
-        # axis_x = np.arange(len(extensor_row))
-        # ax00.plot(axis_x, extensor_row, label='extensor', color=u'#1f77b4')
+        view_yaxis_max = param["monitor"]["view_monitor"]["raw_data_view_yaxis_max"]
+        view_yaxis_min = param["monitor"]["view_monitor"]["raw_data_view_yaxis_min"]
+        extensor_row = extensor_row[-500:]
+        flexor_row = flexor_row[-500:]
+        axis_x = np.arange(len(extensor_row))
+        ax00.plot(axis_x, extensor_row, label='extensor', color=u'#1f77b4')
         # ax00.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_max, alpha=0)
         # ax00.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_min, alpha=0)
-        # ax00.legend(loc='upper right')
+        ax00.legend(loc='upper right')
 
-        # ax01.plot(axis_x, flexor_row, label='flexor', color=u'#ff7f0e')
+        ax01.plot(axis_x, flexor_row, label='flexor', color=u'#ff7f0e')
         # ax01.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_max, alpha=0)
         # ax01.plot(axis_x, np.ones(len(extensor_row)) * view_yaxis_min, alpha=0)
-        # ax01.legend(loc='upper right')
+        ax01.legend(loc='upper right')
 
         # 信号処理後データ
         extensor_processed = extensor_processed[-100:]
