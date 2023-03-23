@@ -20,7 +20,6 @@ bool SignalProcess(int ar_extensor_data[],
     // 1.正規化+ABS
     b_extensor_data = (float *)pvPortMalloc(sizeof(float) * RAW_LENGTH);
     b_flexor_data = (float *)pvPortMalloc(sizeof(float) * RAW_LENGTH);
-
     float extensor_mean = Mean(ar_extensor_data, RAW_LENGTH);
     float flexor_mean = Mean(ar_flexor_data, RAW_LENGTH);
     Normalization(
@@ -69,10 +68,10 @@ void ArrangeArray(
 {
     for (int i = 0; i < RAW_LENGTH; ++i)
     {
-        int ring_array_index = begin_index + i - RAW_LENGTH;
-        if (ring_array_index < 0)
+        int ring_array_index = begin_index + i;
+        if (ring_array_index >= RAW_LENGTH)
         {
-            ring_array_index += RAW_LENGTH;
+            ring_array_index -= RAW_LENGTH;
         }
         ar_extensor_data[i] = r_extensor_data[ring_array_index];
         ar_flexor_data[i] = r_flexor_data[ring_array_index];
@@ -98,8 +97,6 @@ void Normalization(
         float f_flexor = (float)ar_flexor_data[i];
 
         // 正規化
-        b_extensor_data[i] = f_extensor;
-        b_flexor_data[i] = f_flexor;
         b_extensor_data[i] = abs(f_extensor - extensor_mean);
         b_flexor_data[i] = abs(f_flexor - flexor_mean);
     }
@@ -107,6 +104,8 @@ void Normalization(
 
 /**
  * 移動平均
+ * {WINDOW_SIZE}に満たない前後半の{WINDOW_SIZE/2}は計算から除外しているため、
+ * m_extensor(flexor)_dataの後半{WINDOW_SIZE}分は必ず0になる。
  */
 void RollingAverage(
     float b_extensor_data[],
@@ -123,12 +122,6 @@ void RollingAverage(
     {
         extensor_sum += b_extensor_data[i];
         flexor_sum += b_flexor_data[i];
-        if (i >= (WINDOW_SIZE / 2) - 1)
-        {
-            m_extensor_data[m_i] = extensor_sum / (i + 1);
-            m_flexor_data[m_i] = flexor_sum / (i + 1);
-            m_i += 1;
-        }
     }
 
     for (int i = WINDOW_SIZE; i < RAW_LENGTH; i++)
@@ -140,19 +133,6 @@ void RollingAverage(
         flexor_sum += b_flexor_data[i];
         m_flexor_data[m_i] = flexor_sum / WINDOW_SIZE;
         m_i += 1;
-    }
-
-    for (int i = RAW_LENGTH; i < RAW_LENGTH + (WINDOW_SIZE / 2); i++)
-    {
-        extensor_sum -= b_extensor_data[i - WINDOW_SIZE];
-        m_extensor_data[m_i] = extensor_sum / (WINDOW_SIZE - (i - RAW_LENGTH) + 1);
-        flexor_sum -= b_flexor_data[i - WINDOW_SIZE];
-        m_flexor_data[m_i] = flexor_sum / (WINDOW_SIZE - (i - RAW_LENGTH) + 1);
-        m_i += 1;
-        if (m_i >= RAW_LENGTH)
-        {
-            break;
-        }
     }
 }
 

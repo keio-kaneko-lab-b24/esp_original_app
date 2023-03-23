@@ -11,6 +11,6 @@ const float NEEDS_TIME_SEC = 0.25;
 const int RAW_LENGTH = (int)(TARGET_HZ * NEEDS_TIME_SEC);
 
 // 移動平均に使用する窓枠サイズ
-const int WINDOW_SIZE = 10;
+const int WINDOW_SIZE = 30;
 
 #endif // CONSTANTS_H_

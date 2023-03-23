@@ -19,7 +19,7 @@ bool HandleInput(volatile int r_extensor_data[],
     r_extensor_data[begin_index] = a;
     r_flexor_data[begin_index] = b;
 
-    // （デバッグ用）筋電をすべて出力する
+    // （モニタリング用）筋電を出力する
     if (begin_index % 10 == 0)
     {
         unsigned long currentMillis = xTaskGetTickCount();

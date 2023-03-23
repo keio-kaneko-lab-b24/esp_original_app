@@ -51,7 +51,7 @@ void TaskIOcode(void *pvParameters)
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
       begin_index += 1;
-      if (begin_index >= RAW_LENGTH - 1)
+      if (begin_index >= RAW_LENGTH)
       {
         begin_index = 0;
       }
