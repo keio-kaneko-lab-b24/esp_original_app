@@ -1,17 +1,17 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-// サンプリング周波数
-constexpr int kTargetHz = 1000;
+// サンプリング周波数（1秒間に何回筋電位を取得するか）
+constexpr int TARGET_HZ = 1000;
+// 判定頻度（1秒間に何回判定するか）
+constexpr int PREDICT_HZ = 10;
+// 入力配列の時間（何秒間分を判定に使用するか）
+const float NEEDS_TIME_SEC = 0.25;
+// 入力配列の要素数（直近{RAW_LENGTH}個分の筋電を常に保持しておく）
+const int RAW_LENGTH = (int)(TARGET_HZ * NEEDS_TIME_SEC);
 
-// 推定頻度
-constexpr int kPredictHz = 10;
-
-// 配列長
-const float kNeedsTimeSec = 0.25;                      // 入力配列の時間
-const int r_length = (int)(kTargetHz * kNeedsTimeSec); // 入力配列の長さ
-
-// フィルタ
-constexpr int kWindowWidth = kTargetHz;
+// 移動平均に使用する窓枠サイズ
+// 注意：{RAW_LENGTH}より小さい必要がある
+const int WINDOW_SIZE = 100;
 
 #endif // CONSTANTS_H_

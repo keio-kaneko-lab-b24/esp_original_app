@@ -22,19 +22,19 @@ long last_process_micros = 0;
 
 int begin_index = 0;
 // 筋電センサーからの入力（1000Hz）
-int r_extensor_data[r_length] = {0};
-int r_flexor_data[r_length] = {0};
+int r_extensor_data[RAW_LENGTH] = {0};
+int r_flexor_data[RAW_LENGTH] = {0};
 // 整列後の筋電センサーからの入力（1000Hz）
-int ar_extensor_data[r_length] = {0};
-int ar_flexor_data[r_length] = {0};
+int ar_extensor_data[RAW_LENGTH] = {0};
+int ar_flexor_data[RAW_LENGTH] = {0};
 
 // IOスレッド
 void TaskIOcode(void *pvParameters)
 {
   for (;;)
   {
-    // 1000Hz
-    if ((micros() - last_sample_micros) < 1 * 1000)
+    // 毎秒 {TARGET_HZ} 回実行される
+    if ((micros() - last_sample_micros) < (1000 * 1000 / TARGET_HZ))
     {
       continue;
     }
@@ -51,7 +51,7 @@ void TaskIOcode(void *pvParameters)
     if (xSemaphoreTake(xMutex, (portTickType)100) == pdTRUE)
     {
       begin_index += 1;
-      if (begin_index >= r_length - 1)
+      if (begin_index >= RAW_LENGTH)
       {
         begin_index = 0;
       }
@@ -59,7 +59,7 @@ void TaskIOcode(void *pvParameters)
       HandleInput(r_extensor_data,
                   r_flexor_data,
                   begin_index,
-                  r_length);
+                  RAW_LENGTH);
 
       xSemaphoreGive(xMutex);
     }
@@ -71,8 +71,8 @@ void TaskMaincode(void *pvParameters)
 {
   for (;;)
   {
-    // 50Hz
-    if ((micros() - last_process_micros) < 20 * 1000)
+    // 毎秒 {PREDICT_HZ} 回実行される
+    if ((micros() - last_process_micros) < (1000 * 1000 / PREDICT_HZ))
     {
       continue;
     }
@@ -103,7 +103,7 @@ void TaskMaincode(void *pvParameters)
           ar_extensor_data,
           ar_flexor_data,
           begin_index,
-          r_length);
+          RAW_LENGTH);
 
       xSemaphoreGive(xMutex);
     }
@@ -111,7 +111,7 @@ void TaskMaincode(void *pvParameters)
     // 信号処理
     SignalProcess(ar_extensor_data,
                   ar_flexor_data,
-                  r_length);
+                  RAW_LENGTH);
 
     // 閾値判定
     motion motion = NONE;
